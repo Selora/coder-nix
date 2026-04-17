@@ -1,7 +1,7 @@
 FROM debian:13
 
 LABEL org.opencontainers.image.source=https://github.com/Selora/coder-nix
-LABEL org.opencontainers.image.description="Debian 13 base with Nix, devenv and direnv"
+LABEL org.opencontainers.image.description="Debian 13 base with Nix"
 
 ARG USERNAME=coder
 ARG USER_UID=1000
@@ -37,21 +37,8 @@ ENV PATH=${HOME}/.nix-profile/bin:${HOME}/.local/state/nix/profile/bin:/nix/var/
 RUN sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
 
 RUN mkdir -p ${HOME}/.config/nix \
-	&& printf 'experimental-features = nix-command flakes\n' > ${HOME}/.config/nix/nix.conf \
-	&& ${HOME}/.nix-profile/bin/nix profile add \
-    nixpkgs#devenv \
-    nixpkgs#direnv
+	&& printf 'experimental-features = nix-command flakes\n' > ${HOME}/.config/nix/nix.conf
 
 ENV PATH="/home/${USERNAME}/.nix-profile/bin:/home/${USERNAME}/.local/state/nix/profile/bin:${PATH}"
-
-RUN . /home/${USERNAME}/.nix-profile/etc/profile.d/nix.sh \
-	&& nix --version \
-	&& command -v devenv \
-	&& devenv --help >/dev/null
-
-RUN . /home/${USERNAME}/.nix-profile/etc/profile.d/nix.sh \
-	&& nix --version \
-	&& command -v direnv \
-	&& direnv --help >/dev/null
 
 CMD ["/bin/bash"]

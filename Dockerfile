@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   openssh-client \
   iproute2 \
   bind9-dnsutils \
-  iputils \
+  iputils-ping \
   less \
   locales \
   procps \

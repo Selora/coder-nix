@@ -1,0 +1,57 @@
+FROM debian:13
+
+LABEL org.opencontainers.image.source=https://github.com/Selora/coder-nix
+LABEL org.opencontainers.image.description="Debian 13 base with Nix, devenv and direnv"
+
+ARG USERNAME=coder
+ARG USER_UID=1000
+ARG USER_GID=1000
+
+SHELL ["/bin/bash", "-lc"]
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	bash \
+	ca-certificates \
+	curl \
+	git \
+	sudo \
+	xz-utils \
+	&& rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
+	&& useradd --uid "${USER_UID}" --gid "${USER_GID}" -m -s /bin/bash "${USERNAME}" \
+	&& mkdir -p /nix \
+	&& chown "${USER_UID}:${USER_GID}" /nix \
+	&& echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
+	&& chmod 0440 /etc/sudoers.d/${USERNAME}
+
+USER ${USERNAME}
+WORKDIR /home/${USERNAME}
+
+RUN sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
+
+ENV HOME=/home/${USERNAME}
+ENV USER=${USERNAME}
+ENV PATH=${HOME}/.nix-profile/bin:${HOME}/.local/state/nix/profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
+
+RUN sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
+
+RUN mkdir -p ${HOME}/.config/nix \
+	&& printf 'experimental-features = nix-command flakes\n' > ${HOME}/.config/nix/nix.conf \
+	&& ${HOME}/.nix-profile/bin/nix profile add \
+    nixpkgs#devenv \
+    nixpkgs#direnv
+
+ENV PATH="/home/${USERNAME}/.nix-profile/bin:/home/${USERNAME}/.local/state/nix/profile/bin:${PATH}"
+
+RUN . /home/${USERNAME}/.nix-profile/etc/profile.d/nix.sh \
+	&& nix --version \
+	&& command -v devenv \
+	&& devenv --help >/dev/null
+
+RUN . /home/${USERNAME}/.nix-profile/etc/profile.d/nix.sh \
+	&& nix --version \
+	&& command -v direnv \
+	&& direnv --help >/dev/null
+
+CMD ["/bin/bash"]

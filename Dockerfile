@@ -15,6 +15,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	curl \
 	git \
 	sudo \
+  openssh-client \
+  iproute2 \
+  bind9-dnsutils \
+  iputils \
+  less \
+  locales \
+  procps \
+  file \
+  tzdata \
+  unzip \
+  bash-completion \
+  netcat-openbsd \
+  rsync \
+  lsof \
+  strace \
 	xz-utils \
 	&& rm -rf /var/lib/apt/lists/*
 

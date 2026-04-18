@@ -11,6 +11,7 @@ ARG WORKSPACES_DIR=/workspaces
 SHELL ["/bin/bash", "-lc"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+  vim \
 	bash \
 	ca-certificates \
 	curl \
@@ -33,6 +34,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   strace \
 	xz-utils \
 	&& rm -rf /var/lib/apt/lists/*
+
+RUN sed -i 's/^# *en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+    && locale-gen \
+    && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
 RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
 	&& useradd --uid "${USER_UID}" --gid "${USER_GID}" -m -s /bin/bash "${USERNAME}" \

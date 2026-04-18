@@ -43,8 +43,6 @@ RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
 
-RUN sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
-
 ENV HOME=/home/${USERNAME}
 ENV USER=${USERNAME}
 ENV PATH=${HOME}/.nix-profile/bin:${HOME}/.local/state/nix/profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
@@ -55,5 +53,7 @@ RUN mkdir -p ${HOME}/.config/nix \
 	&& printf 'experimental-features = nix-command flakes\n' > ${HOME}/.config/nix/nix.conf
 
 ENV PATH="/home/${USERNAME}/.nix-profile/bin:/home/${USERNAME}/.local/state/nix/profile/bin:${PATH}"
+
+RUN nix --version
 
 CMD ["/bin/bash"]

@@ -6,6 +6,7 @@ LABEL org.opencontainers.image.description="Debian 13 base with Nix"
 ARG USERNAME=coder
 ARG USER_UID=1000
 ARG USER_GID=1000
+ARG WORKSPACES_DIR=/workspaces
 
 SHELL ["/bin/bash", "-lc"]
 
@@ -40,12 +41,17 @@ RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
 	&& echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
 	&& chmod 0440 /etc/sudoers.d/${USERNAME}
 
+# Coder-specific persistent workspaces mount-point
+RUN mkdir -p ${WORKSPACES_DIR} && chown "${USER_UID}":"${USER_GID}" ${WORKSPACES_DIR}
+
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
 
 ENV HOME=/home/${USERNAME}
 ENV USER=${USERNAME}
 ENV PATH=${HOME}/.nix-profile/bin:${HOME}/.local/state/nix/profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
+
+RUN ln -s ${WORKSPACES_DIR} ${HOME}/workspaces
 
 RUN sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
 
@@ -55,5 +61,6 @@ RUN mkdir -p ${HOME}/.config/nix \
 ENV PATH="/home/${USERNAME}/.nix-profile/bin:/home/${USERNAME}/.local/state/nix/profile/bin:${PATH}"
 
 RUN nix --version
+
 
 CMD ["/bin/bash"]

@@ -10,6 +10,4 @@ if [ -z "$(ls -A "$HOME" 2>/dev/null)" ]; then
   rsync -a /opt/coder-home-seed/ "$HOME"/
 fi
 
-ln -snf /workspaces "$HOME/workspaces"
-
 exec "$@"

@@ -3,7 +3,6 @@ FROM debian:13
 ARG USERNAME=coder
 ARG USER_UID=1000
 ARG USER_GID=1000
-ARG WORKSPACES_DIR=/workspaces
 
 SHELL ["/bin/bash", "-lc"]
 
@@ -23,8 +22,8 @@ ENV LC_ALL=en_US.UTF-8
 
 RUN groupadd --gid "${USER_GID}" "${USERNAME}" \
 	&& useradd --uid "${USER_UID}" --gid "${USER_GID}" -m -s /bin/bash "${USERNAME}" \
-	&& mkdir -p /nix "${WORKSPACES_DIR}" \
-	&& chown "${USER_UID}:${USER_GID}" /nix "${WORKSPACES_DIR}" \
+	&& mkdir -p /nix \
+	&& chown "${USER_UID}:${USER_GID}" /nix \
 	&& echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
 	&& chmod 0440 /etc/sudoers.d/${USERNAME}
 
@@ -40,8 +39,6 @@ WORKDIR /home/${USERNAME}
 ENV HOME=/home/${USERNAME}
 ENV USER=${USERNAME}
 ENV PATH=/home/${USERNAME}/.local/state/nix/profile/bin:/home/${USERNAME}/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
-
-RUN ln -s ${WORKSPACES_DIR} ${HOME}/workspaces
 
 RUN sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
 

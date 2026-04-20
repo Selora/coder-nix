@@ -38,9 +38,13 @@ WORKDIR /home/${USERNAME}
 
 ENV HOME=/home/${USERNAME}
 ENV USER=${USERNAME}
-ENV PATH=/home/${USERNAME}/.local/state/nix/profile/bin:/home/${USERNAME}/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
+ENV PATH=/home/${USERNAME}/.local/state/nix/profile/bin:/nix/var/nix/profiles/default/bin:${PATH}
 
 RUN sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
+
+# Normalize the user profile path to the XDG location the shell init will use.
+RUN mkdir -p /home/${USERNAME}/.local/state/nix \
+	&& ln -sfn /home/${USERNAME}/.local/state/nix/profiles/profile /home/${USERNAME}/.local/state/nix/profile
 
 # Fallback seed copy for backends that do not auto-populate the home volume
 USER root

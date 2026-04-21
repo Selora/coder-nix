@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	openssh-client iproute2 bind9-dnsutils iputils-ping \
 	less locales procps file tzdata unzip bash-completion \
 	netcat-openbsd lsof strace vim \
+  build-essential \
 	&& rm -rf /var/lib/apt/lists/*
 
 RUN sed -i 's/^# *en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
